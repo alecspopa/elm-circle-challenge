@@ -8,17 +8,17 @@ init =
       { radius = 250
       , thickness = 1
       , color = "red"
-      , points = (createPoints 250 1 "red")
+      , points = (createPoints 250 "red" 1)
       }
       , Cmd.none
     )
 
-createPoints : Int -> Int -> String -> List Point
-createPoints radius thickness color =
-  List.concatMap (createPoint radius thickness color) (List.range 0 900)
+createPoints : Int -> String -> Int -> List Point
+createPoints radius color thickness =
+  List.concatMap (createPoint radius color thickness) (List.range 0 900)
 
-createPoint : Int -> Int -> String -> Int -> List Point
-createPoint radius thickness color angle =
+createPoint : Int -> String -> Int -> Int -> List Point
+createPoint radius color thickness angle =
   let
     radians =
       (toFloat angle) / 10.0 * pi / 180.0
@@ -50,29 +50,33 @@ createPoint radius thickness color angle =
       }
     ]
 
+updateCircle : String -> Int -> Circle -> Circle
+updateCircle color thickness circle =
+  { radius = circle.radius
+  , thickness = thickness
+  , color = color
+  , points = List.map (updatePoint color thickness) circle.points
+  }
+
+updatePoint : String -> Int -> Point -> Point
+updatePoint color thickness point =
+  { x = point.x
+  , y = point.y
+  , thickness = thickness
+  , color = color
+  }
+
 -- UPDATE
 
 update : Msg -> Circle -> (Circle, Cmd Msg)
 update msg circle =
     case msg of
         ChangeColor color ->
-          (
-            { radius = 250
-            , thickness = 1
-            , color = color
-            , points = (createPoints 250 1 color)
-            }
-            , Cmd.none
-          )
+          ( updateCircle color circle.thickness circle, Cmd.none )
         ChangeThickness thickness ->
-          (
-            { radius = 250
-            , thickness = thickness
-            , color = "red"
-            , points = (createPoints 250 thickness "red")
-            }
-            , Cmd.none
-          )
+          ( updateCircle circle.color thickness circle, Cmd.none )
+        ChangeColorThickness color thickness ->
+          ( updateCircle color thickness circle, Cmd.none )
 
 -- SUBSCRIPTIONS
 

@@ -14,8 +14,9 @@ rootView circle =
               , ("left", "300px")
               ]
       ] (List.map pointDraw circle.points)
-    , colorToggle circle.color
-    , thicknessToggle circle.thickness
+    , toggleColor circle.color
+    , toggleThickness circle.thickness
+    , toggleColorThickness circle.color circle.thickness
     ]
 
 pointDraw : Point -> Html Msg
@@ -29,16 +30,23 @@ pointDraw point =
               ]
       ] []
 
-colorToggle : String -> Html Msg
-colorToggle currentColor =
+toggleColor : String -> Html Msg
+toggleColor currentColor =
   if currentColor == "red" then
     button [ onClick (ChangeColor "blue") ] [ text "Change color to blue" ]
   else
     button [ onClick (ChangeColor "red") ] [ text "Change color to red" ]
 
-thicknessToggle : Int -> Html Msg
-thicknessToggle currentThickness =
+toggleThickness : Int -> Html Msg
+toggleThickness currentThickness =
   if currentThickness == 1 then
-    button [ onClick (ChangeThickness 5) ] [ text "Change thickness to 5" ]
+    button [ onClick (ChangeThickness 10) ] [ text "Change thickness to 10 " ]
   else
     button [ onClick (ChangeThickness 1) ] [ text "Change thickness to 1" ]
+
+toggleColorThickness : String -> Int -> Html Msg
+toggleColorThickness currentColor currentThickness =
+  if currentColor == "red" then
+    button [ onClick (ChangeColorThickness "blue" 10) ] [ text "Change color to blue and thickness to 10" ]
+  else
+    button [ onClick (ChangeColorThickness "red" 1) ] [ text "Change color to red and thickness to 1" ]

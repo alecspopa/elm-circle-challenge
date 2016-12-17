@@ -21,3 +21,4 @@ type alias Point =
 type Msg
   = ChangeColor String
   | ChangeThickness Int
+  | ChangeColorThickness String Int

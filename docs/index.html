@@ -8235,6 +8235,10 @@ var _user$project$Types$Point = F4(
 	function (a, b, c, d) {
 		return {x: a, y: b, thickness: c, color: d};
 	});
+var _user$project$Types$ChangeColorThickness = F2(
+	function (a, b) {
+		return {ctor: 'ChangeColorThickness', _0: a, _1: b};
+	});
 var _user$project$Types$ChangeThickness = function (a) {
 	return {ctor: 'ChangeThickness', _0: a};
 };
@@ -8244,8 +8248,48 @@ var _user$project$Types$ChangeColor = function (a) {
 var _user$project$State$subscriptions = function (circle) {
 	return _elm_lang$core$Platform_Sub$none;
 };
+var _user$project$State$updatePoint = F3(
+	function (color, thickness, point) {
+		return {x: point.x, y: point.y, thickness: thickness, color: color};
+	});
+var _user$project$State$updateCircle = F3(
+	function (color, thickness, circle) {
+		return {
+			radius: circle.radius,
+			thickness: thickness,
+			color: color,
+			points: A2(
+				_elm_lang$core$List$map,
+				A2(_user$project$State$updatePoint, color, thickness),
+				circle.points)
+		};
+	});
+var _user$project$State$update = F2(
+	function (msg, circle) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'ChangeColor':
+				return {
+					ctor: '_Tuple2',
+					_0: A3(_user$project$State$updateCircle, _p0._0, circle.thickness, circle),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'ChangeThickness':
+				return {
+					ctor: '_Tuple2',
+					_0: A3(_user$project$State$updateCircle, circle.color, _p0._0, circle),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: A3(_user$project$State$updateCircle, _p0._0, _p0._1, circle),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
+	});
 var _user$project$State$createPoint = F4(
-	function (radius, thickness, color, angle) {
+	function (radius, color, thickness, angle) {
 		var radians = ((_elm_lang$core$Basics$toFloat(angle) / 10.0) * _elm_lang$core$Basics$pi) / 180.0;
 		var x = _elm_lang$core$Basics$round(
 			_elm_lang$core$Basics$toFloat(radius) * _elm_lang$core$Basics$sin(radians));
@@ -8270,40 +8314,11 @@ var _user$project$State$createPoint = F4(
 		};
 	});
 var _user$project$State$createPoints = F3(
-	function (radius, thickness, color) {
+	function (radius, color, thickness) {
 		return A2(
 			_elm_lang$core$List$concatMap,
-			A3(_user$project$State$createPoint, radius, thickness, color),
+			A3(_user$project$State$createPoint, radius, color, thickness),
 			A2(_elm_lang$core$List$range, 0, 900));
-	});
-var _user$project$State$update = F2(
-	function (msg, circle) {
-		var _p0 = msg;
-		if (_p0.ctor === 'ChangeColor') {
-			var _p1 = _p0._0;
-			return {
-				ctor: '_Tuple2',
-				_0: {
-					radius: 250,
-					thickness: 1,
-					color: _p1,
-					points: A3(_user$project$State$createPoints, 250, 1, _p1)
-				},
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		} else {
-			var _p2 = _p0._0;
-			return {
-				ctor: '_Tuple2',
-				_0: {
-					radius: 250,
-					thickness: _p2,
-					color: 'red',
-					points: A3(_user$project$State$createPoints, 250, _p2, 'red')
-				},
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		}
 	});
 var _user$project$State$init = {
 	ctor: '_Tuple2',
@@ -8311,22 +8326,50 @@ var _user$project$State$init = {
 		radius: 250,
 		thickness: 1,
 		color: 'red',
-		points: A3(_user$project$State$createPoints, 250, 1, 'red')
+		points: A3(_user$project$State$createPoints, 250, 'red', 1)
 	},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
-var _user$project$View$thicknessToggle = function (currentThickness) {
+var _user$project$View$toggleColorThickness = F2(
+	function (currentColor, currentThickness) {
+		return _elm_lang$core$Native_Utils.eq(currentColor, 'red') ? A2(
+			_elm_lang$html$Html$button,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Events$onClick(
+					A2(_user$project$Types$ChangeColorThickness, 'blue', 10)),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('Change color to blue and thickness to 10'),
+				_1: {ctor: '[]'}
+			}) : A2(
+			_elm_lang$html$Html$button,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Events$onClick(
+					A2(_user$project$Types$ChangeColorThickness, 'red', 1)),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('Change color to red and thickness to 1'),
+				_1: {ctor: '[]'}
+			});
+	});
+var _user$project$View$toggleThickness = function (currentThickness) {
 	return _elm_lang$core$Native_Utils.eq(currentThickness, 1) ? A2(
 		_elm_lang$html$Html$button,
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html_Events$onClick(
-				_user$project$Types$ChangeThickness(5)),
+				_user$project$Types$ChangeThickness(10)),
 			_1: {ctor: '[]'}
 		},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text('Change thickness to 5'),
+			_0: _elm_lang$html$Html$text('Change thickness to 10 '),
 			_1: {ctor: '[]'}
 		}) : A2(
 		_elm_lang$html$Html$button,
@@ -8342,7 +8385,7 @@ var _user$project$View$thicknessToggle = function (currentThickness) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$View$colorToggle = function (currentColor) {
+var _user$project$View$toggleColor = function (currentColor) {
 	return _elm_lang$core$Native_Utils.eq(currentColor, 'red') ? A2(
 		_elm_lang$html$Html$button,
 		{
@@ -8461,11 +8504,15 @@ var _user$project$View$rootView = function (circle) {
 				A2(_elm_lang$core$List$map, _user$project$View$pointDraw, circle.points)),
 			_1: {
 				ctor: '::',
-				_0: _user$project$View$colorToggle(circle.color),
+				_0: _user$project$View$toggleColor(circle.color),
 				_1: {
 					ctor: '::',
-					_0: _user$project$View$thicknessToggle(circle.thickness),
-					_1: {ctor: '[]'}
+					_0: _user$project$View$toggleThickness(circle.thickness),
+					_1: {
+						ctor: '::',
+						_0: A2(_user$project$View$toggleColorThickness, circle.color, circle.thickness),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		});
