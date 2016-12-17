@@ -14,5 +14,5 @@ then navigate to
 ## Build for production
 
 ```bash
-elm-make src/Main.elm --output=docs/main.html
+elm-make src/Main.elm --output=docs/index.html
 ```
